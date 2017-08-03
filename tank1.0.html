@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body onkeydown="getcommand();">
+   <canvas id="canvas" style="background-color:black;" width="300"; height="400"></canvas>
+<script type="text/javascript">
+    var canvas = document.getElementById("canvas");
+    var cxt = canvas.getContext('2d');
+   
+    function Tank(x,y,direct){
+        this.x = x;
+        this.y = y;
+        this.direct = direct;
+        this.up = function(){
+            this.y--;
+            this.direct = 0;
+        };
+        this.right = function(){
+            this.x++;
+            this.direct = 1;
+        }
+        this.down = function(){
+            this.y++;
+            this.direct = 2;
+        }
+        this.left =function(){
+            this.x--;
+            this.direct = 3;
+        }
+    }
+    function Hero(x, y, direct){
+        this.color = "#FFD972"
+        this.cover = "#FFD972"
+        this.tank = Tank;
+        this.tank(x,y,direct);
+        //子弹计时器
+        this.timer = null;
+        this.shootEnemy = function(){
+            var bulletX,bulletY;
+            switch(this.direct){
+                case 0:
+                    bulletX = this.x+10;
+                    bulletY = this.y+2;
+                    break;
+                case 1:
+                    bulletX = this.x+28;
+                    bulletY = this.y+10;
+                    break;
+                case 2:
+                    bulletX = this.x+10;
+                    bulletY = this.y+28;
+                    break;
+                case 3:
+                    bulletX = this.x+2;
+                    bulletY = this.y+10;
+                    break;
+            }
+            let a = new Bullet(bulletX, bulletY, this.direct);
+            heroBullet.push(a);
+            heroBullet[heroBullet.length-1].timer();
+            //子弹生成
+            //console.log(bullet);
+            // let timer = setInterval(() => heroBullet[(heroBullet.length-1)].run(), 50);
+            // heroBullet[heroBullet.length-1].timer = timer;
+         }
+    }
+    function Enemy(x,y,direct){
+        this.color = "#3036a1";
+        this.cover = "#0f1579"
+        this.enemy = Tank;
+        this.enemy(x,y,direct);
+    }
+    function Bullet(x, y, direct){
+        this.color = "yellow";
+        this.x = x;
+        this.y = y;
+
+        //接收hero里的定时器
+        this.timer = function(){
+            setInterval(() => this.run(), 50);
+            console.log(this)
+            console.log('this')
+
+            // var interval = setInterval(function(){
+            //         timesRun += 1;
+            //         if(timesRun === 60){
+            //         clearInterval(interval);
+            //         }
+            //         //do whatever here..
+            //         }, 2000);
+        };
+        this.direct = direct;
+        this.speed = 2;
+        this.run = function(){
+             if(this.x>300||this.y>400||this.x<0||this.y<0){
+                clearInterval(this.timer);
+                // this.timer = null;
+                // console.log("123123");
+            }else{
+                switch (this.direct){
+                case 0:
+                    this.y-=2;
+                    break;
+                case 1:
+                    this.x+=2;
+                    break;
+                case 2:
+                    this.y+=2;
+                    break;
+                case 3:
+                    this.x-=2;
+                    break;
+                }
+            }
+        }
+    }
+    function drawTank(tank){
+        switch(tank.direct){
+            case 0:
+                 //齿轮
+                cxt.fillStyle=tank.color;
+                cxt.fillRect(tank.x,tank.y,5,30);
+                cxt.fillRect(tank.x+15,tank.y,5,30);
+                //tank身体
+                cxt.fillRect(tank.x+6,tank.y+5,8,20);
+                //盖子
+                cxt.fillStyle=tank.cover;
+                cxt.arc(tank.x+10,tank.y+15,4,0,2*Math.PI);
+                cxt.fill();
+                //炮筒
+                cxt.strokeStyle=tank.color;
+                cxt.lineWidth=1.5;
+                cxt.beginPath();
+                cxt.moveTo(tank.x+10,tank.y+15);
+                cxt.lineTo(tank.x+10,tank.y+2);
+                cxt.closePath();
+                cxt.stroke();
+                break;
+            case 1:
+                 //齿轮
+                cxt.fillStyle=tank.color;
+                cxt.fillRect(tank.x,tank.y,30,5);
+                cxt.fillRect(tank.x,tank.y+15,30,5);
+                //tank身体
+                cxt.fillRect(tank.x+5,tank.y+6,20,8);
+                //盖子
+                cxt.arc(tank.x+15,tank.y+10,4,0,2*Math.PI);
+                cxt.fillStyle=tank.cover;
+                cxt.fill();
+                //炮筒
+                cxt.strokeStyle=tank.color;
+                cxt.lineWidth=1.5;
+                cxt.beginPath();
+                cxt.moveTo(tank.x+15,tank.y+10);
+                cxt.lineTo(tank.x+28,tank.y+10);
+                cxt.closePath();
+                cxt.stroke();
+                break;
+            case 2:
+                 //齿轮
+                cxt.fillStyle=tank.color;
+                cxt.fillRect(tank.x,tank.y,5,30);
+                cxt.fillRect(tank.x+15,tank.y,5,30);
+                //tank身体
+                cxt.fillRect(tank.x+6,tank.y+5,8,20);
+                //盖子
+                cxt.arc(tank.x+10,tank.y+15,4,0,2*Math.PI);
+                cxt.fillStyle=tank.cover;
+                cxt.fill();
+                //炮筒
+                cxt.strokeStyle=tank.color;
+                cxt.lineWidth=1.5;
+                cxt.beginPath();
+                cxt.moveTo(tank.x+10,tank.y+15);
+                cxt.lineTo(tank.x+10,tank.y+28);
+                cxt.closePath();
+                cxt.stroke();
+                break;
+            case 3:
+                //齿轮
+                cxt.fillStyle=tank.color;
+                cxt.fillRect(tank.x,tank.y,30,5);
+                cxt.fillRect(tank.x,tank.y+15,30,5);
+                //tank身体
+                cxt.fillRect(tank.x+5,tank.y+6,20,8);
+                //盖子
+                cxt.arc(tank.x+15,tank.y+10,4,0,2*Math.PI);
+                cxt.fillStyle=tank.cover;
+                cxt.fill();
+                //炮筒
+                cxt.strokeStyle=tank.color;
+                cxt.lineWidth=1.5;
+                cxt.beginPath();
+                cxt.moveTo(tank.x+15,tank.y+10);
+                cxt.lineTo(tank.x+2,tank.y+10);
+                cxt.closePath();
+                cxt.stroke();
+                break;
+        }
+       
+    }
+    function drawHeroBullet(heroBullet){
+        if(heroBullet.length!==0){
+            //console.log(bullet);
+            for(let i=0; i<heroBullet.length; i++){
+                cxt.fillStyle="yellow";
+                cxt.fillRect(heroBullet[i].x,heroBullet[i].y,3,3);
+            }
+        }
+    }
+    function getcommand(){
+        var code = event.keyCode;
+        switch(code){
+            case 87:
+                hero.up();
+                break;
+            case 68:
+                hero.right();
+                break;
+            case 83:
+                hero.down();
+                break;
+            case 65:
+                hero.left();
+                break;
+            case 74:
+                hero.shootEnemy();
+                break;
+        }
+        flashTankMap();
+    }
+    function flashTankMap(){
+         //清理画布
+        cxt.clearRect(0,0,300,400);
+        //重绘
+        drawTank(hero);
+        //子弹重绘
+        //console.log(hero.bullet);
+        drawHeroBullet(heroBullet);
+        for(var i=0; i<3; i++){
+            var enemy = new Enemy(i*50, 30, 2);
+            enemyArray.push(enemy);
+            drawTank(enemyArray[i]);
+        }
+        //console.log("flash"+hero.bullet);
+    }
+    
+    var hero = new Hero(100,100,0);
+    var enemyArray = [];
+    var heroBullet = [];
+    flashTankMap();
+    //作战区刷新
+    window.setInterval(flashTankMap, 100);
+    
+</script>
+</body>
+</html>
