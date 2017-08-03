@@ -12,6 +12,7 @@
     function Tank(x,y,direct){
         this.x = x;
         this.y = y;
+        this.isAlive = true;
         this.direct = direct;
         this.up = function(){
             this.y--;
@@ -76,12 +77,10 @@
         this.color = "yellow";
         this.x = x;
         this.y = y;
-
+        this.isAlive = true;
         //接收hero里的定时器
         this.timer = function(){
             setInterval(() => this.run(), 50);
-            console.log(this)
-            console.log('this')
 
             // var interval = setInterval(function(){
             //         timesRun += 1;
@@ -95,6 +94,7 @@
         this.speed = 2;
         this.run = function(){
              if(this.x>300||this.y>400||this.x<0||this.y<0){
+                this.isAlive = false;
                 clearInterval(this.timer);
                 // this.timer = null;
                 // console.log("123123");
@@ -202,12 +202,27 @@
        
     }
     function drawHeroBullet(heroBullet){
+        for(let i=0; i<heroBullet.length; i++){
+            if(!heroBullet[i].isAlive){
+                heroBullet.splice(i, 1);
+            }
+        }
         if(heroBullet.length!==0){
             //console.log(bullet);
             for(let i=0; i<heroBullet.length; i++){
                 cxt.fillStyle="yellow";
                 cxt.fillRect(heroBullet[i].x,heroBullet[i].y,3,3);
             }
+        }
+    }
+    function drawEnemy(enemyArray){
+        for(let i=0; i<enemyArray.length; i++){
+            if(!enemyArray[i].isAlive){
+                enemyArray.splice(i, 1);
+            }    
+        }
+        for(let i=0; i<enemyArray.length; i++){
+            drawTank(enemyArray[i]);
         }
     }
     function getcommand(){
@@ -231,6 +246,17 @@
         }
         flashTankMap();
     }
+     //判断子弹是否命中敌人
+    function hitEnemy(heroBullet, enemyArray){
+        for(let i=0; i<heroBullet.length; i++){
+            for(let j=0; j<enemyArray.length; j++){
+                if(heroBullet[i].x>enemyArray[j].x&&heroBullet[i].x<enemyArray[j].x+30&&heroBullet[i].y>enemyArray[j].y&&heroBullet[i].y<enemyArray[j].y+30){
+                    heroBullet[i].isAlive = false;
+                    enemyArray[j].isAlive = false;
+                }
+            }
+        }
+    }
     function flashTankMap(){
          //清理画布
         cxt.clearRect(0,0,300,400);
@@ -239,16 +265,19 @@
         //子弹重绘
         //console.log(hero.bullet);
         drawHeroBullet(heroBullet);
-        for(var i=0; i<3; i++){
-            var enemy = new Enemy(i*50, 30, 2);
-            enemyArray.push(enemy);
-            drawTank(enemyArray[i]);
-        }
+        //敌军坦克
+        drawEnemy(enemyArray)
+        //是否击中
+        hitEnemy(heroBullet, enemyArray);
         //console.log("flash"+hero.bullet);
     }
     
     var hero = new Hero(100,100,0);
     var enemyArray = [];
+    for(let i=0; i<3; i++){
+            var enemy = new Enemy(i*50, 30, 2);
+            enemyArray.push(enemy);
+        }
     var heroBullet = [];
     flashTankMap();
     //作战区刷新
